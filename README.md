@@ -2,10 +2,18 @@
 
 ![alt text](docs/image.png)
 
-- Lambda ウェブフックタイプの Discord BOT
+- ウェブフックタイプの Discord BOT
 - 参加ボタンを押すとルートとロールの希望を聞き、先着順に自動で割り振り
-- バックエンドには Firestore を使用
+
+## 技術
+
+- Serverless Framework
+- AWS Lambda
+- Firebase Firestore
+- Discord.js
 
 ## 使い方
 
-- config.json.example を見て、Firebase のサービスアカウントと DiscordBOT のキーを登録
+- Serverless Framework の説明を見る
+- DiscordBOT と Firestore を利用開始する
+- `config.json.example` を真似て、Firebase のサービスアカウントと DiscordBOT のキーを`config.json`に登録
