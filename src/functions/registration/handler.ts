@@ -534,7 +534,6 @@ const buildNextMessage = async (
       }
 
       const allowedRoutes = routeLimits.map((r) => r[0])
-      const allowedRoleNames = ['壁', '地図罠', '40', '50']
 
       let invalidRaw = ''
       let invalidReason: 'format' | 'route' | 'role' | null = null
@@ -547,6 +546,7 @@ const buildNextMessage = async (
         聖域40: 'S40',
         聖域50: 'S50',
       }
+      const allowedRoleNames = Object.keys(roleKeyMap)
       const reserves: (User & { joined: 0 })[] = []
       const hasInvalid = rawInputs.some((raw) => {
         if (!/^(.+)-([0-9]{2})-(.+)$/.test(raw)) {
