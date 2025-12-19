@@ -161,6 +161,14 @@ const kickModal: ModalVariables = {
   placeholder: 'Fuji',
   max_length: 10,
 }
+const managementModal: ModalVariables = {
+  title: '枠管理',
+  custom_id: 'management',
+  label:
+    '募集主は枠を優先確保できます。「{名前}-{ルート番号}-(壁/地図罠/40/50)」の形式で入力。カンマ区切りで複数入力可。削除は除名機能で行ってください。',
+  placeholder: '身内-01-壁,不使用1-11-聖域40,不使用2-12-40',
+  max_length: 200,
+}
 const organizationModal: ModalVariables = {
   title: '規定人数到達',
   custom_id: 'member_organization_modal',
@@ -175,6 +183,7 @@ const MODAL_VARIABLES = {
   member_edit: editModal,
   member_exit: exitModal,
   member_kick: kickModal,
+  management: managementModal,
   member_organization: organizationModal,
 } as const
 

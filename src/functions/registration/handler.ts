@@ -244,7 +244,7 @@ const registration: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
       const userCount = users.docs.length
       if (10 <= userCount) {
         await postMessage(channelId, {
-          content: `現在${userCount}人です。`,
+          content: `現在${userCount}枠決定です。`,
           message_reference: {
             message_id: composeId,
           },
@@ -451,8 +451,9 @@ const buildNextMessage = async (
     }
   } else if (interaction.type === InteractionType.MODAL_SUBMIT) {
     const user = await userRef.get()
-    const input_value = (interaction as MessageInteraction).data.components[0]
-      .components[0].value
+    const input_value = (
+      interaction as MessageInteraction
+    ).data.components[0].components[0].value.replaceAll('/', '')
     if (customId == 'member_join_modal') {
       if (user.exists) {
         return alreadyParticipatedError(editorId)
@@ -509,6 +510,102 @@ const buildNextMessage = async (
       return {
         bodyString: JSON.stringify({
           content: `${input_value}さんが除名されました。`,
+        }),
+        delete: false,
+        updateParty: true,
+      }
+    } else if (customId === 'management_modal') {
+      const commander = await channelRef.doc(channelId).get()
+      if (commander.data()?.commander !== editorId) {
+        return notCommanderError(editorId)
+      }
+
+      // 複数カンマ区切りを許可: 入力を分割して全件検証する（形式チェック -> ルート番号チェック -> ロールチェック）
+      const rawInputs: string[] = (input_value || '')
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0)
+
+      if (rawInputs.length === 0) {
+        return JSON.stringify({
+          content:
+            '入力が空です。正しい形式: 名前-ルート番号-ロール\n例: 富士-01-壁',
+        })
+      }
+
+      const allowedRoutes = routeLimits.map((r) => r[0])
+      const allowedRoleNames = ['壁', '地図罠', '40', '50']
+
+      let invalidRaw = ''
+      let invalidReason: 'format' | 'route' | 'role' | null = null
+
+      const roleKeyMap: { [key: string]: string } = {
+        壁: 'Wall',
+        地図罠: 'MapTrap',
+        '40': 'S40',
+        '50': 'S50',
+      }
+      const reserves: (User & { joined: 0 })[] = []
+      const hasInvalid = rawInputs.some((raw) => {
+        const m = /^(.+)-([0-9]{2})-(.+)$/.exec(raw)
+        const name = m[1].trim()
+        if (!m) {
+          invalidRaw = raw
+          invalidReason = 'format'
+          return true
+        }
+        const routeNumber = m[2]
+        if (!allowedRoutes.includes(routeNumber)) {
+          invalidRaw = routeNumber
+          invalidReason = 'route'
+          return true
+        }
+        const roleRaw = m[3].trim()
+        if (!allowedRoleNames.includes(roleRaw)) {
+          invalidRaw = roleRaw
+          invalidReason = 'role'
+          return true
+        }
+        reserves.push({
+          joined: 0,
+          id: `reserve${name}`,
+          name,
+          routes: routeNumber,
+          roles: roleKeyMap[roleRaw] || '',
+        })
+        return false
+      })
+      if (hasInvalid) {
+        if (invalidReason === 'format') {
+          return JSON.stringify({
+            content: `入力形式が不正です: "${invalidRaw}"。正しい形式: 名前-ルート番号-ロール\n例: 富士-01-壁`,
+          })
+        } else if (invalidReason === 'route') {
+          return JSON.stringify({
+            content: `無効なルート番号です: "${invalidRaw}"。使用可能な記載: ${allowedRoutes.join(
+              ', ',
+            )}`,
+          })
+        } else {
+          return JSON.stringify({
+            content: `無効なロールです: "${invalidRaw}"。使用可能な記載: ${allowedRoleNames.join(
+              ', ',
+            )}`,
+          })
+        }
+      }
+      for await (const reserve of reserves) {
+        await channelRef
+          .doc(channelId)
+          .collection('users')
+          .doc(reserve.id)
+          .set(reserve)
+      }
+
+      // 成功レスポンス
+      return {
+        bodyString: JSON.stringify({
+          content: `枠管理を受け付けました。`,
         }),
         delete: false,
         updateParty: true,
@@ -645,14 +742,20 @@ const participationMessage = (): string => {
           },
           {
             type: 2,
-            label: '編成告知',
+            label: '枠管理',
             style: 2,
-            emoji: {
-              id: null,
-              name: '✅',
-            },
-            custom_id: 'member_organization',
+            custom_id: 'management',
           },
+          // {
+          //   type: 2,
+          //   label: '編成告知',
+          //   style: 2,
+          //   emoji: {
+          //     id: null,
+          //     name: '✅',
+          //   },
+          //   custom_id: 'member_organization',
+          // },
         ],
       },
     ],
