@@ -155,18 +155,18 @@ const exitModal: ModalVariables = {
   max_length: 100,
 }
 const kickModal: ModalVariables = {
-  title: '除名',
+  title: '除名（募集主のみ）',
   custom_id: 'member_kick_modal',
   label: '除名する人の名前を入力してください',
   placeholder: 'Fuji',
   max_length: 10,
 }
 const managementModal: ModalVariables = {
-  title: '枠管理',
-  custom_id: 'management',
+  title: '枠管理（募集主のみ）',
+  custom_id: 'management_modal',
   label:
-    '募集主は枠を優先確保できます。「{名前}-{ルート番号}-(壁/地図罠/40/50)」の形式で入力。カンマ区切りで複数入力可。削除は除名機能で行ってください。',
-  placeholder: '身内-01-壁,不使用1-11-聖域40,不使用2-12-40',
+    '枠を確保できます。「名前-ルート-(壁|地図罠|40|50)」形式、複数可。削除は除名で。',
+  placeholder: '身内-01-壁,不使用1-11-40,不使用2-12-40',
   max_length: 200,
 }
 const organizationModal: ModalVariables = {

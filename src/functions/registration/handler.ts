@@ -544,9 +544,16 @@ const buildNextMessage = async (
         地図罠: 'MapTrap',
         '40': 'S40',
         '50': 'S50',
+        聖域40: 'S40',
+        聖域50: 'S50',
       }
       const reserves: (User & { joined: 0 })[] = []
       const hasInvalid = rawInputs.some((raw) => {
+        if (!/^(.+)-([0-9]{2})-(.+)$/.test(raw)) {
+          invalidRaw = raw
+          invalidReason = 'format'
+          return true
+        }
         const m = /^(.+)-([0-9]{2})-(.+)$/.exec(raw)
         const name = m[1].trim()
         if (!m) {
