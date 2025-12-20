@@ -166,7 +166,7 @@ const managementModal: ModalVariables = {
   custom_id: 'management_modal',
   label:
     '枠を確保できます。「名前-ルート-(壁|地図罠|40|50)」形式、複数可。削除は除名で。',
-  placeholder: '身内-01-壁,不使用1-11-40,不使用2-12-40',
+  placeholder: '主催壁-01-壁,不使用1-11-40,不使用2-12-40',
   max_length: 200,
 }
 const organizationModal: ModalVariables = {
